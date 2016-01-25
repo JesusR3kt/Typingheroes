@@ -19,6 +19,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
 
@@ -288,6 +289,15 @@ public class GUI extends javax.swing.JFrame {
                     }
                     p += 100 * combo;
                 } else {
+                    try {                
+                        hit();
+                    } catch (UnsupportedAudioFileException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (LineUnavailableException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     fehler++;
                     tfIn.setBackground(Color.red);
                     streak = 0;
@@ -298,12 +308,12 @@ public class GUI extends javax.swing.JFrame {
                     lbLeben.setText(str);
                     if (fehler == 10) {
                         bout.stop();
-                        music.interrupt();
-                        RGB.interrupt();
+                        music.stop();
+                        RGB.stop();
                         btSpeed.setEnabled(true);
                         Start.setEnabled(true);
                         JOptionPane.showMessageDialog(rootPane, "DO YOU UNDERSTAND!\nR.I.P.\nDu hast VERLOREN!");
-                        read.interrupt();
+                        read.stop();
 
                     }
                 }
@@ -324,6 +334,21 @@ public class GUI extends javax.swing.JFrame {
                 tfIn.setText("");
             }
 
+        }
+
+        private void hit() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+          File soundFile;
+                soundFile = new File("src/typingheroes/ding.wav");
+                AudioInputStream stream;
+                AudioFormat format;
+                DataLine.Info info;
+
+                stream = AudioSystem.getAudioInputStream(soundFile);
+                format = stream.getFormat();
+                info = new DataLine.Info(Clip.class, format);
+                clip = (Clip) AudioSystem.getLine(info);
+                clip.open(stream);
+                clip.start();
         }
     };
 
