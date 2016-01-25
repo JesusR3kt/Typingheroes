@@ -45,7 +45,8 @@ public class GUI extends javax.swing.JFrame {
     private int streak, p, fehler;
     private Clip clip;
     private boolean v;
-    private int speed = 1000;
+    private int speed = 1000,start = 0;
+    private boolean b1;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -168,6 +169,8 @@ public class GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void StartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartActionPerformed
+        b1=true;
+        
         lbPunkte.setText("");
         p=0;
         combo=1;
@@ -178,11 +181,18 @@ public class GUI extends javax.swing.JFrame {
         lbLeben.setForeground(Color.red);
         tfIn.setBackground(Color.white);
         tfIn.setText("");
-        bout.start();
-        read.start();
+        
+        
+        start=1;
+        
+              
+        if(start==1)
+        {
+        start++;
         music.start();
+        bout.start(); 
         //RGB.start();
-
+        }
     }//GEN-LAST:event_StartActionPerformed
 
     private void btSpeedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSpeedActionPerformed
@@ -239,43 +249,79 @@ public class GUI extends javax.swing.JFrame {
 
     Thread bout = new Thread() {
         public void run() {
-            boolean b = true;
-
-            while (b) {
+            
+            
+            
+            while (b1) {
+                
+                tfIn.setBackground(Color.white);
+                tfIn.setText("");
+                //random
+                
+//                try {
+//                    Thread.sleep(speed);
+//                } catch (InterruptedException ex) {
+//                    
+//                }
+                
                 Random rand = new Random();
                 int x = rand.nextInt((122 - 97) + 1) + 97;
 
                 char c = (char) x;
 
                 bs = ("" + c);
-                lbTipp.setText(bs);
-
+                lbTipp.setText(bs);                
+                //random
+                
                 try {
                     Thread.sleep(speed);
                 } catch (InterruptedException ex) {
-                   
-                }
-            }
-        }
-
-    };
-
-    Thread read = new Thread() {
-        public void run() {
-            boolean b = true;
-
-            while (b) {
-
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ex) {
                     Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                v=true;
+                //read
+                
                 String s = tfIn.getText();
 
                 if (s.isEmpty()) {
+                    
+                    try {
+                        Thread.sleep(speed);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    v = false;
+                    fehler++;
+                    try {
+                        ding();
+                    } catch (UnsupportedAudioFileException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (LineUnavailableException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    tfIn.setBackground(Color.red);
+                    streak = 0;
+                    combo = 1;
+                    v = false;
+                    String str = lbLeben.getText();
+                    str = str.substring(0, str.length() - 1);
+                    lbLeben.setText(str);
+                    if (fehler == 10) {
+                        clip.stop();
+                        btSpeed.setEnabled(true);
+                        Start.setEnabled(true);
+                        JOptionPane.showMessageDialog(rootPane, "DO YOU UNDERSTAND!\nR.I.P.\nDu hast VERLOREN!");
+                        b1=false;
+                        
 
+                    }
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     continue;
 
                 }
@@ -288,9 +334,15 @@ public class GUI extends javax.swing.JFrame {
                         streak = 0;
                     }
                     p += 100 * combo;
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    continue;
                 } else {
                     try {                
-                        hit();
+                        ding();
                     } catch (UnsupportedAudioFileException ex) {
                         Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
@@ -307,36 +359,31 @@ public class GUI extends javax.swing.JFrame {
                     str = str.substring(0, str.length() - 1);
                     lbLeben.setText(str);
                     if (fehler == 10) {
-                        bout.stop();
-                        music.stop();
-                        RGB.stop();
+                        clip.stop();
                         btSpeed.setEnabled(true);
                         Start.setEnabled(true);
                         JOptionPane.showMessageDialog(rootPane, "DO YOU UNDERSTAND!\nR.I.P.\nDu hast VERLOREN!");
-                        read.stop();
+                        b1=false;
+                       
 
                     }
                 }
-                try {
-                    Thread.sleep(400);
-                } catch (InterruptedException ex) {
-                    
-                }
+                
 
                 lbBonus.setText("x" + combo);
                 lbPunkte.setText("" + p);
-                try {
-                    Thread.sleep(delay / 3);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                tfIn.setBackground(Color.white);
-                tfIn.setText("");
+                
+                
+                
+                
+                //read
+                
             }
-
+            
         }
 
-        private void hit() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        
+        private void ding() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
           File soundFile;
                 soundFile = new File("src/typingheroes/ding.wav");
                 AudioInputStream stream;
@@ -350,7 +397,12 @@ public class GUI extends javax.swing.JFrame {
                 clip.open(stream);
                 clip.start();
         }
+        
+        
+        
     };
+
+   
 
     Thread music = new Thread() {
         public void run() {
